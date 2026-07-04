@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>First Choice Buying — AXE Blue Lavender</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand-blue: #2f80ed;
+    --brand-orange: #f2994a;
+    --ink: #1c2733;
+    --muted: #6b7a8c;
+    --line: #e6ebf1;
+    --bg: #ffffff;
+    --deal-red: #e02b2b;
+    --banner-ink: #06070d;
+    --electric: #2f7bff;
+    --frost: #9ed2ff;
+    --lavender: #8e7bff;
+    --amber: #ffb35c;
+    --pad: clamp(1rem, 4vw, 3rem); /* fluid page gutter */
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { font-family: 'Poppins', sans-serif; color: var(--ink); background: var(--bg); overflow-x: hidden; }
+  img { max-width: 100%; display: block; }
+  a { text-decoration: none; color: inherit; }
+  button { font-family: inherit; }
+
+  /* ============================================================
+     Header — mobile-first: logo + icons row, search below,
+     nav collapses into a hamburger drawer (pure CSS checkbox)
+     ============================================================ */
+  .topline { height: 6px; background: var(--brand-blue); }
+
+  header {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas:
+      "logo . cart burger"
+      "search search search search";
+    align-items: center;
+    gap: .8rem 1rem;
+    padding: .9rem var(--pad);
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+
+  .logo { grid-area: logo; font-weight: 800; font-size: 1.05rem; color: var(--brand-blue); line-height: 1.1; white-space: nowrap; }
+  .logo b { color: var(--ink); }
+  .logo span { display: block; font-size: .58rem; letter-spacing: .42em; font-weight: 600; color: var(--brand-blue); }
+
+  .search {
+    grid-area: search;
+    display: flex; align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .search input {
+    flex: 1; min-width: 0; border: 0; outline: 0;
+    padding: .8rem 1rem;
+    font-family: inherit; font-size: 16px; /* 16px prevents iOS zoom-on-focus */
+    color: var(--ink);
+  }
+  .search input::placeholder { color: var(--muted); }
+  .search .cat {
+    padding: .8rem .9rem;
+    border-left: 1px solid var(--line);
+    font-size: .82rem; color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .cart {
+    grid-area: cart;
+    position: relative; font-size: 1.3rem;
+    width: 44px; height: 44px;              /* touch target */
+    display: grid; place-items: center;
+  }
+  .cart::after {
+    content: "1";
+    position: absolute; top: 2px; right: 2px;
+    background: var(--brand-orange); color: #fff;
+    font-size: .6rem; font-weight: 700;
+    width: 16px; height: 16px; border-radius: 50%;
+    display: grid; place-items: center;
+  }
+
+  /* hamburger */
+  #nav-toggle { display: none; }
+  .burger {
+    grid-area: burger;
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    cursor: pointer;
+  }
+  .burger div { width: 22px; height: 2px; background: var(--ink); position: relative; transition: background .2s; }
+  .burger div::before, .burger div::after {
+    content: ""; position: absolute; left: 0; width: 22px; height: 2px; background: var(--ink);
+    transition: transform .25s ease, top .25s ease;
+  }
+  .burger div::before { top: -7px; }
+  .burger div::after { top: 7px; }
+  #nav-toggle:checked ~ .burger div { background: transparent; }
+  #nav-toggle:checked ~ .burger div::before { top: 0; transform: rotate(45deg); }
+  #nav-toggle:checked ~ .burger div::after { top: 0; transform: rotate(-45deg); }
+
+  nav {
+    grid-column: 1 / -1;
+    display: grid;
+    max-height: 0; overflow: hidden;
+    transition: max-height .3s ease;
+  }
+  #nav-toggle:checked ~ nav { max-height: 22rem; }
+  nav a {
+    padding: .9rem .4rem;
+    font-size: .95rem; font-weight: 500;
+    border-top: 1px solid var(--line);
+  }
+  nav a:active, nav a:hover { color: var(--brand-blue); }
+
+  /* Desktop header layout */
+  @media (min-width: 900px) {
+    header {
+      grid-template-columns: auto minmax(260px, 1fr) auto auto;
+      grid-template-areas: "logo search nav cart";
+      gap: 2rem;
+    }
+    .burger, #nav-toggle { display: none; }
+    nav {
+      grid-area: nav;
+      grid-auto-flow: column;
+      gap: 1.6rem;
+      max-height: none; overflow: visible;
+      align-items: center;
+    }
+    nav a { padding: .4rem 0; border-top: 0; font-size: .92rem; }
+    .logo { font-size: 1.15rem; }
+  }
+
+  /* ============================================================
+     PROMO BANNER — stacks on mobile, splits on wide screens
+     ============================================================ */
+  .promo {
+    margin: clamp(.8rem, 2.5vw, 1.6rem) var(--pad);
+    border-radius: clamp(12px, 2vw, 18px);
+    overflow: hidden;
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    padding: clamp(1.6rem, 4vw, 3rem);
+    color: #eef3ff;
+    background:
+      radial-gradient(900px 420px at 82% 18%, rgba(47,123,255,.35), transparent 60%),
+      radial-gradient(700px 500px at 8% 95%, rgba(142,123,255,.28), transparent 55%),
+      linear-gradient(160deg, #0b0e1a, var(--banner-ink) 70%);
+    isolation: isolate;
+  }
+  @media (min-width: 820px) {
+    .promo { grid-template-columns: 1.2fr .8fr; min-height: 380px; gap: 2rem; }
+  }
+  .promo::before {
+    content: "";
+    position: absolute; inset: 0; z-index: -1;
+    background-image:
+      repeating-linear-gradient(115deg, transparent 0 120px, rgba(158,210,255,.06) 120px 121px);
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 90%);
+  }
+
+  .promo .tag {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--deal-red); color: #fff;
+    font-weight: 800; font-size: clamp(.62rem, 1.6vw, .72rem); letter-spacing: .3em;
+    padding: .4rem 1rem;
+    transform: skewX(-8deg);
+    animation: glow 2.4s ease-in-out infinite;
+  }
+  @keyframes glow {
+    0%,100% { box-shadow: 0 0 14px rgba(224,43,43,.35); }
+    50%     { box-shadow: 0 0 30px rgba(224,43,43,.75); }
+  }
+
+  .promo h1 {
+    font-weight: 800; font-style: italic; text-transform: uppercase;
+    font-size: clamp(1.9rem, 5.5vw, 3.4rem);
+    line-height: .98; letter-spacing: -0.01em;
+    margin: 1rem 0 .9rem;
+    overflow-wrap: break-word;
+  }
+  .promo h1 .grad {
+    background: linear-gradient(92deg, var(--frost), var(--electric) 45%, var(--lavender));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 18px rgba(47,123,255,.45));
+  }
+
+  .promo p.copy {
+    max-width: 46ch;
+    font-size: clamp(.88rem, 2.4vw, .95rem);
+    line-height: 1.7; color: #c6d4f2; font-weight: 400;
+  }
+  .promo p.copy strong { color: var(--frost); font-weight: 600; }
+  .promo p.copy em { color: var(--amber); font-style: normal; font-weight: 600; }
+
+  .price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: .8rem; margin: 1.2rem 0 1.4rem; }
+  .price-row .now { font-size: clamp(1.8rem, 5vw, 2.2rem); font-weight: 800; color: #fff; }
+  .price-row .was { font-size: clamp(1rem, 2.6vw, 1.15rem); color: #7c8db4; text-decoration: line-through; }
+  .price-row .save {
+    background: var(--deal-red); color: #fff;
+    font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+    padding: .3rem .7rem; border-radius: 4px;
+  }
+
+  .promo .ctas { display: flex; flex-wrap: wrap; gap: .9rem; align-items: center; }
+  .btn {
+    font-weight: 700; font-size: .9rem; letter-spacing: .04em;
+    padding: .95rem 2rem; border-radius: 8px;
+    transition: transform .16s ease, box-shadow .16s ease;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 48px;                         /* touch target */
+  }
+  @media (max-width: 480px) {
+    .promo .ctas { flex-direction: column; align-items: stretch; }
+    .btn { width: 100%; }
+  }
+  .btn-cart {
+    background: var(--brand-orange); color: #fff;
+    box-shadow: 0 8px 26px rgba(242,153,74,.45);
+  }
+  .btn-cart:hover { transform: translateY(-2px); box-shadow: 0 12px 34px rgba(242,153,74,.6); }
+  .btn-scent {
+    border: 1px solid rgba(158,210,255,.45); color: var(--frost);
+    background: rgba(158,210,255,.06);
+  }
+  .btn-scent:hover { background: rgba(158,210,255,.14); transform: translateY(-2px); }
+
+  .promo .fineprint { margin-top: 1rem; font-size: .74rem; letter-spacing: .05em; color: #8fa2c9; }
+  .promo .fineprint b { color: var(--amber); }
+
+  /* banner product side */
+  .stage {
+    position: relative; display: grid; place-items: center;
+    min-height: clamp(260px, 42vw, 340px);
+  }
+  @media (max-width: 819px) { .stage { order: -1; } } /* product first on phones */
+
+  .halo {
+    position: absolute; width: min(20rem, 88%); aspect-ratio: 1; border-radius: 50%;
+    background: radial-gradient(circle, rgba(47,123,255,.4), rgba(142,123,255,.15) 45%, transparent 70%);
+    filter: blur(8px);
+    animation: breathe 5s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+
+  .stick {
+    position: relative;
+    width: clamp(120px, 30vw, 165px);
+    aspect-ratio: 250 / 470;
+    border-radius: 20px / 46px;
+    background:
+      radial-gradient(120% 90% at 18% 8%, rgba(158,210,255,.55), transparent 42%),
+      radial-gradient(140% 110% at 85% 78%, rgba(142,123,255,.5), transparent 46%),
+      radial-gradient(100% 80% at 70% 25%, rgba(47,123,255,.55), transparent 50%),
+      linear-gradient(170deg, #10131f, #05060b 75%);
+    box-shadow:
+      inset 6px 0 16px rgba(158,210,255,.12),
+      inset -8px 0 20px rgba(0,0,0,.8),
+      0 26px 54px rgba(0,0,0,.65),
+      0 0 46px rgba(47,123,255,.3);
+    animation: float 6s ease-in-out infinite;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: .3rem; text-align: center; padding: 1.4rem .8rem;
+  }
+  @keyframes float { 0%,100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-12px) rotate(1.5deg); } }
+  .stick::before {
+    content: ""; position: absolute; top: 17%; left: 5%; right: 5%; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(158,210,255,.5), transparent);
+  }
+  .stick .brand { font-weight: 800; font-style: italic; font-size: clamp(1.4rem, 4vw, 1.7rem); letter-spacing: .05em; color: #fff; }
+  .stick .line { font-size: .4rem; letter-spacing: .3em; text-transform: uppercase; color: #cdd8f0; }
+  .stick .flavor {
+    font-weight: 800; text-transform: uppercase; font-size: clamp(.8rem, 2.4vw, .95rem); line-height: 1.05; margin-top: .5rem;
+    background: linear-gradient(90deg, var(--frost), var(--electric));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .stick .notes { font-size: .48rem; letter-spacing: .16em; color: #9fb2da; text-transform: uppercase; }
+  .stick .claims { font-size: .4rem; letter-spacing: .12em; color: #7c8db4; text-transform: uppercase; margin-top: .9rem; line-height: 1.9; }
+
+  .chip {
+    position: absolute;
+    font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+    font-size: clamp(.52rem, 1.6vw, .6rem);
+    padding: .42rem .8rem; border-radius: 999px;
+    border: 1px solid rgba(158,210,255,.35);
+    background: rgba(10,14,26,.72); color: var(--frost);
+    animation: drift 7s ease-in-out infinite;
+    white-space: nowrap;
+  }
+  .chip.c1 { top: 8%; left: 2%; animation-delay: .4s; }
+  .chip.c2 { top: 48%; right: 0; color: var(--lavender); border-color: rgba(142,123,255,.4); animation-delay: 1.3s; }
+  .chip.c3 { bottom: 6%; left: 8%; color: var(--amber); border-color: rgba(255,179,92,.4); animation-delay: 2.1s; }
+  @keyframes drift { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+  /* respect users who prefer less motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  /* ============================================================
+     Trust strip — horizontal scroll on small screens, no wrap-cram
+     ============================================================ */
+  .trust {
+    display: flex; gap: 2rem;
+    padding: 1rem var(--pad);
+    border-bottom: 1px solid var(--line);
+    font-size: .74rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .trust::-webkit-scrollbar { display: none; }
+  .trust span { white-space: nowrap; }
+  .trust span::before { content: "✓ "; color: var(--brand-blue); }
+  @media (min-width: 900px) { .trust { justify-content: center; gap: 2.5rem; } }
+
+  /* ============================================================
+     Product grid — 2-up on phones, auto-fill upward
+     ============================================================ */
+  .section-head {
+    display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem;
+    padding: clamp(1.4rem, 4vw, 2.4rem) var(--pad) 1.2rem;
+  }
+  .section-head h2 { font-size: clamp(1.1rem, 3vw, 1.35rem); font-weight: 700; }
+  .section-head a { font-size: .85rem; color: var(--brand-blue); font-weight: 600; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(.7rem, 2vw, 1.2rem);
+    padding: 0 var(--pad) clamp(1.8rem, 5vw, 3rem);
+  }
+  @media (min-width: 640px)  { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 1000px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .card {
+    border: 1px solid var(--line); border-radius: 12px;
+    padding: clamp(.7rem, 2vw, 1rem);
+    transition: box-shadow .18s ease, transform .18s ease;
+    display: flex; flex-direction: column;
+  }
+  .card:hover { box-shadow: 0 10px 26px rgba(28,39,51,.08); transform: translateY(-3px); }
+  .thumb {
+    height: clamp(100px, 18vw, 150px); border-radius: 8px; margin-bottom: .9rem;
+    display: grid; place-items: center;
+    font-size: 2rem;
+  }
+  .t1 { background: linear-gradient(150deg, #e8f1ff, #dbe9ff); }
+  .t2 { background: linear-gradient(150deg, #fff2e4, #ffe7cd); }
+  .t3 { background: linear-gradient(150deg, #eae6ff, #ddd6ff); }
+  .t4 { background: linear-gradient(150deg, #e4f9ef, #d2f3e2); }
+  .card h3 { font-size: clamp(.78rem, 2vw, .88rem); font-weight: 600; line-height: 1.45; }
+  .card .price { margin-top: auto; padding-top: .5rem; font-weight: 700; font-size: clamp(.85rem, 2.2vw, 1rem); }
+  .card .price s { color: var(--muted); font-weight: 400; font-size: .8em; margin-left: .4rem; }
+  .card .mini {
+    margin-top: .7rem; width: 100%;
+    background: #fff; color: var(--brand-blue);
+    border: 1.5px solid var(--brand-blue); border-radius: 7px;
+    font-weight: 600; font-size: .8rem;
+    padding: .6rem; min-height: 42px;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .card .mini:hover { background: var(--brand-blue); color: #fff; }
+
+  /* ============================================================
+     Footer — stacks cleanly on mobile
+     ============================================================ */
+  footer {
+    border-top: 1px solid var(--line);
+    padding: clamp(1.6rem, 4vw, 2.2rem) var(--pad);
+    display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between;
+    font-size: .8rem; color: var(--muted);
+  }
+  footer .cols { display: flex; gap: clamp(1.6rem, 6vw, 4rem); flex-wrap: wrap; }
+  footer h4 { font-size: .8rem; color: var(--ink); margin-bottom: .6rem; }
+  footer li { list-style: none; margin-bottom: .5rem; }
+  footer .legal { flex-basis: 100%; }
+  @media (min-width: 900px) { footer .legal { flex-basis: auto; text-align: right; } }
+</style>
+</head>
+<body>
+
+  <div class="topline"></div>
+
+  <!-- ===== Header ===== -->
+  <header>
+    <a class="logo" href="#">FIRST <b>CHOICE</b><span>BUYING</span></a>
+
+    <a href="#" class="cart" aria-label="Cart, 1 item">🛒</a>
+
+    <input type="checkbox" id="nav-toggle" aria-hidden="true" />
+    <label class="burger" for="nav-toggle" aria-label="Menu"><div></div></label>
+
+    <nav>
+      <a href="#">Shop All ▾</a>
+      <a href="#">Deals Zone</a>
+      <a href="#">Wholesale</a>
+      <a href="#">About Us</a>
+      <a href="#">Reach Out</a>
+    </nav>
+
+    <div class="search">
+      <input type="text" placeholder="What can we help you find?" />
+      <div class="cat">All categories ▾</div>
+    </div>
+  </header>
+
+  <!-- ===== THE BANNER ===== -->
+  <section class="promo">
+    <div>
+      <span class="tag">DEAL OF THE WEEK</span>
+      <h1>Smell Like<br><span class="grad">You Mean It.</span></h1>
+      <p class="copy">
+        AXE Fine Fragrance Collection <strong>Blue Lavender</strong> — cool lavender crashes into
+        <strong>frosted mint</strong> and lands on a warm <em>amber</em> finish.
+        48H fresh. Aluminum free. Infused with essential oils.
+      </p>
+      <div class="price-row">
+        <span class="now">$4.99</span>
+        <span class="was">$7.94</span>
+        <span class="save">SAVE 37%</span>
+      </div>
+      <div class="ctas">
+        <a class="btn btn-cart" href="#">Add To Cart →</a>
+        <a class="btn btn-scent" href="#">Explore the Scent</a>
+      </div>
+      <p class="fineprint">⚡ <b>Selling fast</b> · Free shipping over $49 · Same day dispatch</p>
+    </div>
+
+    <div class="stage">
+      <div class="halo"></div>
+      <div class="stick" role="img" aria-label="AXE Blue Lavender deodorant stick">
+        <div class="brand">AXE</div>
+        <div class="line">Fine Fragrance Collection</div>
+        <div class="flavor">Blue<br>Lavender</div>
+        <div class="notes">Mint + Amber</div>
+        <div class="claims">48H Fresh · Aluminum Free<br>Essential Oils</div>
+      </div>
+      <span class="chip c1">❄ Frosted Mint</span>
+      <span class="chip c2">✿ Blue Lavender</span>
+      <span class="chip c3">◆ Warm Amber</span>
+    </div>
+  </section>
+
+  <!-- ===== Trust strip ===== -->
+  <div class="trust">
+    <span>100% Authentic Guarantee</span>
+    <span>Free Shipping Over $49</span>
+    <span>Same Day Dispatch</span>
+    <span>Secure Checkout</span>
+  </div>
+
+  <!-- ===== Product grid (filler) ===== -->
+  <div class="section-head">
+    <h2>You May Also Like</h2>
+    <a href="#">View all →</a>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="thumb t1">🧴</div>
+      <h3>AXE Fine Fragrance Body Wash, Blue Lavender, 16 oz</h3>
+      <div class="price">$6.49 <s>$8.99</s></div>
+      <button class="mini">Add to Cart</button>
+    </div>
+    <div class="card">
+      <div class="thumb t2">✨</div>
+      <h3>AXE Gold Vanilla Deodorant Stick, Oud Wood, 2.6 oz</h3>
+      <div class="price">$4.99 <s>$7.94</s></div>
+      <button class="mini">Add to Cart</button>
+    </div>
+    <div class="card">
+      <div class="thumb t3">💜</div>
+      <h3>Blue Lavender Deodorant 6-Pack — Wholesale Bundle</h3>
+      <div class="price">$26.99 <s>$47.64</s></div>
+      <button class="mini">Add to Cart</button>
+    </div>
+    <div class="card">
+      <div class="thumb t4">🌿</div>
+      <h3>AXE Emerald Sage Deodorant Stick, Sage + Cedar, 2.6 oz</h3>
+      <div class="price">$4.99 <s>$7.94</s></div>
+      <button class="mini">Add to Cart</button>
+    </div>
+  </div>
+
+  <!-- ===== Footer ===== -->
+  <footer>
+    <div class="cols">
+      <div>
+        <h4>Shop</h4>
+        <ul><li>Deals Zone</li><li>New Arrivals</li><li>Wholesale</li><li>Gift Cards</li></ul>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <ul><li>Shipping & Returns</li><li>Track Order</li><li>FAQ</li><li>Contact</li></ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul><li>About Us</li><li>Careers</li><li>Privacy Policy</li><li>Terms</li></ul>
+      </div>
+    </div>
+    <div class="legal">© 2026 First Choice Buying. Demo page for illustrative purposes.<br>AXE® is a registered trademark of its owner.</div>
+  </footer>
+
+</body>
+</html>

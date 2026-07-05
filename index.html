@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>First Choice Buying — AXE Blue Lavender</title>
+<title>First Choice Buying — AXE Fine Fragrance Collection</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --brand-blue: #2f80ed;
@@ -15,12 +15,10 @@
     --muted: #6b7a8c;
     --line: #e6ebf1;
     --bg: #ffffff;
-    --deal-red: #e02b2b;
-    --banner-ink: #06070d;
-    --electric: #2f7bff;
-    --frost: #9ed2ff;
-    --lavender: #8e7bff;
-    --amber: #ffb35c;
+    --deal-red: #d92b2b;
+    --banner-body: #aeb9c9;
+    --banner-faint: #78829a;
+    --banner-rule: rgba(255,255,255,.12);
     --pad: clamp(1rem, 4vw, 3rem); /* fluid page gutter */
   }
 
@@ -31,13 +29,23 @@
   a { text-decoration: none; color: inherit; }
   button { font-family: inherit; }
 
+  /* Bootstrap-style container: content is centered and capped at a
+     fixed width, so on large screens it stops growing entirely and
+     just sits centered; below the cap it shrinks with safe gutters */
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--pad);
+  }
+
   /* ============================================================
-     Header — mobile-first: logo + icons row, search below,
-     nav collapses into a hamburger drawer (pure CSS checkbox)
+     Header — mobile-first, hamburger drawer (pure CSS checkbox)
      ============================================================ */
   .topline { height: 6px; background: var(--brand-blue); }
 
-  header {
+  header { border-bottom: 1px solid var(--line); }
+  .header-inner {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
     grid-template-areas:
@@ -45,8 +53,7 @@
       "search search search search";
     align-items: center;
     gap: .8rem 1rem;
-    padding: .9rem var(--pad);
-    border-bottom: 1px solid var(--line);
+    padding-block: .9rem;
     position: relative;
   }
 
@@ -65,7 +72,7 @@
   .search input {
     flex: 1; min-width: 0; border: 0; outline: 0;
     padding: .8rem 1rem;
-    font-family: inherit; font-size: 16px; /* 16px prevents iOS zoom-on-focus */
+    font-family: inherit; font-size: 16px; /* prevents iOS zoom-on-focus */
     color: var(--ink);
   }
   .search input::placeholder { color: var(--muted); }
@@ -79,7 +86,7 @@
   .cart {
     grid-area: cart;
     position: relative; font-size: 1.3rem;
-    width: 44px; height: 44px;              /* touch target */
+    width: 44px; height: 44px;
     display: grid; place-items: center;
   }
   .cart::after {
@@ -91,7 +98,6 @@
     display: grid; place-items: center;
   }
 
-  /* hamburger */
   #nav-toggle { display: none; }
   .burger {
     grid-area: burger;
@@ -124,9 +130,8 @@
   }
   nav a:active, nav a:hover { color: var(--brand-blue); }
 
-  /* Desktop header layout */
   @media (min-width: 900px) {
-    header {
+    .header-inner {
       grid-template-columns: auto minmax(260px, 1fr) auto auto;
       grid-template-areas: "logo search nav cart";
       gap: 2rem;
@@ -144,198 +149,375 @@
   }
 
   /* ============================================================
-     PROMO BANNER — stacks on mobile, splits on wide screens
+     PROMO CAROUSEL
+     Three scents share one stage. Each brings its own background,
+     graded from its pack: blue/violet, teal/aqua, forest green.
+     Auto-advances every 30s; arrows and swatch dots take over on click.
      ============================================================ */
   .promo {
-    margin: clamp(.8rem, 2.5vw, 1.6rem) var(--pad);
-    border-radius: clamp(12px, 2vw, 18px);
+    margin-block: clamp(.8rem, 2.5vw, 1.6rem);
+    border-radius: clamp(10px, 1.5vw, 14px);
     overflow: hidden;
     position: relative;
+    color: #f2f5fa;
+    background: #0d1118; /* base under the crossfading tints */
+    padding: clamp(1.6rem, 4vw, 3.2rem);
+    padding-bottom: calc(clamp(1.6rem, 4vw, 3.2rem) + 1.8rem); /* room for the dots */
+  }
+
+  /* per-product backgrounds, crossfaded by opacity */
+  .bg {
+    position: absolute; inset: 0; z-index: 0;
+    opacity: 0;
+    transition: opacity .9s ease;
+    pointer-events: none;
+  }
+  /* Blue Lavender: black plastic, ice-blue mint, lavender violet */
+  .bg--lavender {
+    background:
+      radial-gradient(80% 110% at 88% 12%, rgba(168,216,240,.16), transparent 55%),
+      radial-gradient(70% 100% at 8% 95%, rgba(107,90,158,.24), transparent 60%),
+      linear-gradient(160deg, #0f1526 0%, #131a30 38%, #1b1836 72%, #0b0e1c 100%);
+  }
+  /* Aqua Bergamot: teal sage, pale citrus */
+  .bg--aqua {
+    background:
+      radial-gradient(80% 110% at 88% 12%, rgba(150,208,216,.15), transparent 55%),
+      radial-gradient(70% 100% at 8% 95%, rgba(188,218,168,.10), transparent 60%),
+      linear-gradient(160deg, #0c1618 0%, #102320 38%, #123029 72%, #081210 100%);
+  }
+  /* Green Geranium: forest green, silver petals */
+  .bg--geranium {
+    background:
+      radial-gradient(80% 110% at 88% 12%, rgba(205,210,214,.11), transparent 55%),
+      radial-gradient(70% 100% at 8% 95%, rgba(72,168,110,.16), transparent 60%),
+      linear-gradient(160deg, #0c1310 0%, #12211a 38%, #17332a 72%, #08100c 100%);
+  }
+  .promo[data-slide="0"] .bg--lavender,
+  .promo[data-slide="1"] .bg--aqua,
+  .promo[data-slide="2"] .bg--geranium { opacity: 1; }
+
+  /* slides stack in one grid cell so the banner holds the height
+     of the tallest slide — no jumping between products */
+  .slides { position: relative; z-index: 1; display: grid; }
+
+  .slide {
+    grid-area: 1 / 1;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.2rem;
     align-items: center;
-    padding: clamp(1.6rem, 4vw, 3rem);
-    color: #eef3ff;
-    background:
-      radial-gradient(900px 420px at 82% 18%, rgba(47,123,255,.35), transparent 60%),
-      radial-gradient(700px 500px at 8% 95%, rgba(142,123,255,.28), transparent 55%),
-      linear-gradient(160deg, #0b0e1a, var(--banner-ink) 70%);
-    isolation: isolate;
+    /* leaving state */
+    opacity: 0;
+    transform: translateY(14px);
+    visibility: hidden;
+    transition: opacity .5s ease, transform .5s ease, visibility 0s .5s;
+  }
+  .slide.is-active {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    transition: opacity .55s ease .12s, transform .55s ease .12s, visibility 0s;
   }
   @media (min-width: 820px) {
-    .promo { grid-template-columns: 1.2fr .8fr; min-height: 380px; gap: 2rem; }
-  }
-  .promo::before {
-    content: "";
-    position: absolute; inset: 0; z-index: -1;
-    background-image:
-      repeating-linear-gradient(115deg, transparent 0 120px, rgba(158,210,255,.06) 120px 121px);
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 90%);
+    .slide { grid-template-columns: 52fr 48fr; min-height: 430px; gap: 1.4rem; }
   }
 
-  .promo .tag {
-    display: inline-flex; align-items: center; gap: .5rem;
-    background: var(--deal-red); color: #fff;
-    font-weight: 800; font-size: clamp(.62rem, 1.6vw, .72rem); letter-spacing: .3em;
-    padding: .4rem 1rem;
-    transform: skewX(-8deg);
-    animation: glow 2.4s ease-in-out infinite;
-  }
-  @keyframes glow {
-    0%,100% { box-shadow: 0 0 14px rgba(224,43,43,.35); }
-    50%     { box-shadow: 0 0 30px rgba(224,43,43,.75); }
+  /* each scent carries its accent color */
+  .slide { --accent: #3d7ce8; }
+  .slide.s-aqua { --accent: #8fd0dd; }
+  .slide.s-geranium { --accent: #45c06a; }
+
+  .eyebrow {
+    display: inline-block;
+    border-left: 3px solid var(--deal-red);
+    padding-left: .7rem;
+    font-size: .7rem; font-weight: 700;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: #ff6b6b;
   }
 
-  .promo h1 {
-    font-weight: 800; font-style: italic; text-transform: uppercase;
-    font-size: clamp(1.9rem, 5.5vw, 3.4rem);
-    line-height: .98; letter-spacing: -0.01em;
-    margin: 1rem 0 .9rem;
-    overflow-wrap: break-word;
-  }
-  .promo h1 .grad {
-    background: linear-gradient(92deg, var(--frost), var(--electric) 45%, var(--lavender));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 0 18px rgba(47,123,255,.45));
+  .slide h2 {
+    font-family: 'Anton', 'Poppins', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: clamp(2.6rem, 6.5vw, 4.8rem);
+    line-height: .95;
+    letter-spacing: .01em;
+    color: var(--accent);
+    margin: .9rem 0 .7rem;
   }
 
-  .promo p.copy {
-    max-width: 46ch;
-    font-size: clamp(.88rem, 2.4vw, .95rem);
-    line-height: 1.7; color: #c6d4f2; font-weight: 400;
+  /* ---- the warp: JS splits each headline into letters.
+     Every letter arrives over-stretched, skewed and blurred, then
+     snaps straight with a springy overshoot, cascading left to right ---- */
+  .slide h2 .ch {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(.55em) skewX(-16deg) scaleY(1.7);
+    filter: blur(7px);
+    transition:
+      opacity .45s ease,
+      filter .5s ease,
+      transform .7s cubic-bezier(.2, 1.5, .3, 1); /* overshoot = the snap */
   }
-  .promo p.copy strong { color: var(--frost); font-weight: 600; }
-  .promo p.copy em { color: var(--amber); font-style: normal; font-weight: 600; }
+  .slide.is-active h2 .ch {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+    transition-delay: calc(.16s + var(--i) * .04s);
+  }
+  /* while the letters land, an SVG displacement field ripples the whole
+     headline like liquid, decaying to zero (progressive enhancement) */
+  .warping { filter: url(#warp); will-change: filter; }
 
-  .price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: .8rem; margin: 1.2rem 0 1.4rem; }
-  .price-row .now { font-size: clamp(1.8rem, 5vw, 2.2rem); font-weight: 800; color: #fff; }
-  .price-row .was { font-size: clamp(1rem, 2.6vw, 1.15rem); color: #7c8db4; text-decoration: line-through; }
+  /* the rest of the copy follows the headline in a quiet cascade */
+  .slide .eyebrow, .slide .sub, .slide .notes-row,
+  .slide .price-row, .slide .ctas, .slide .fineprint {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .45s ease, transform .45s ease;
+  }
+  .slide.is-active .eyebrow,
+  .slide.is-active .sub,
+  .slide.is-active .notes-row,
+  .slide.is-active .price-row,
+  .slide.is-active .ctas,
+  .slide.is-active .fineprint { opacity: 1; transform: none; }
+  .slide.is-active .eyebrow   { transition-delay: .10s; }
+  .slide.is-active .sub       { transition-delay: .34s; }
+  .slide.is-active .notes-row { transition-delay: .40s; }
+  .slide.is-active .price-row { transition-delay: .46s; }
+  .slide.is-active .ctas      { transition-delay: .52s; }
+  .slide.is-active .fineprint { transition-delay: .58s; }
+
+  .sub {
+    max-width: 44ch;
+    font-size: clamp(.88rem, 2.2vw, .98rem);
+    line-height: 1.65;
+    color: var(--banner-body);
+  }
+  .sub strong { color: #fff; font-weight: 600; }
+
+  /* fragrance pyramid — the structure perfume retail actually uses */
+  .notes-row {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: start;
+    gap: clamp(1.2rem, 4vw, 2.6rem);
+    margin: 1.4rem 0 1.5rem;
+    padding-top: .9rem;
+    border-top: 1px solid var(--banner-rule);
+  }
+  .notes-row div dt {
+    font-size: .58rem; font-weight: 600;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--banner-faint);
+    margin-bottom: .25rem;
+  }
+  .notes-row div dd { font-size: .88rem; font-weight: 600; color: #e6edf6; }
+
+  .price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: .8rem; margin-bottom: 1.3rem; }
+  .price-row .now {
+    font-family: 'Anton', 'Poppins', sans-serif;
+    font-size: clamp(2rem, 4.5vw, 2.7rem);
+    letter-spacing: .01em; color: #fff;
+  }
+  .price-row .was { font-size: .95rem; color: var(--banner-faint); text-decoration: line-through; }
   .price-row .save {
     background: var(--deal-red); color: #fff;
-    font-size: .72rem; font-weight: 700; letter-spacing: .06em;
-    padding: .3rem .7rem; border-radius: 4px;
+    font-size: .66rem; font-weight: 700; letter-spacing: .08em;
+    padding: .32rem .6rem; border-radius: 3px;
   }
 
-  .promo .ctas { display: flex; flex-wrap: wrap; gap: .9rem; align-items: center; }
-  .btn {
-    font-weight: 700; font-size: .9rem; letter-spacing: .04em;
-    padding: .95rem 2rem; border-radius: 8px;
-    transition: transform .16s ease, box-shadow .16s ease;
-    display: inline-flex; align-items: center; justify-content: center;
-    min-height: 48px;                         /* touch target */
-  }
-  @media (max-width: 480px) {
-    .promo .ctas { flex-direction: column; align-items: stretch; }
-    .btn { width: 100%; }
-  }
+  .ctas { display: flex; flex-wrap: wrap; gap: 1.3rem; align-items: center; }
   .btn-cart {
     background: var(--brand-orange); color: #fff;
-    box-shadow: 0 8px 26px rgba(242,153,74,.45);
+    font-weight: 700; font-size: .92rem;
+    padding: .95rem 2.2rem; border-radius: 7px;
+    min-height: 48px;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .15s ease;
   }
-  .btn-cart:hover { transform: translateY(-2px); box-shadow: 0 12px 34px rgba(242,153,74,.6); }
-  .btn-scent {
-    border: 1px solid rgba(158,210,255,.45); color: var(--frost);
-    background: rgba(158,210,255,.06);
+  .btn-cart:hover { background: #e18a3d; }
+  .link-details {
+    color: var(--banner-body); font-size: .88rem;
+    text-decoration: underline; text-underline-offset: 3px;
+    padding: .6rem 0;
   }
-  .btn-scent:hover { background: rgba(158,210,255,.14); transform: translateY(-2px); }
+  .link-details:hover { color: #fff; }
+  @media (max-width: 480px) {
+    .ctas { gap: .4rem; }
+    .btn-cart { width: 100%; }
+    .link-details { width: 100%; text-align: center; }
+  }
 
-  .promo .fineprint { margin-top: 1rem; font-size: .74rem; letter-spacing: .05em; color: #8fa2c9; }
-  .promo .fineprint b { color: var(--amber); }
+  .fineprint { margin-top: 1.1rem; font-size: .74rem; color: var(--banner-faint); }
 
-  /* banner product side */
+  /* ---------- product side ---------- */
   .stage {
-    position: relative; display: grid; place-items: center;
-    min-height: clamp(260px, 42vw, 340px);
-  }
-  @media (max-width: 819px) { .stage { order: -1; } } /* product first on phones */
-
-  .halo {
-    position: absolute; width: min(20rem, 88%); aspect-ratio: 1; border-radius: 50%;
-    background: radial-gradient(circle, rgba(47,123,255,.4), rgba(142,123,255,.15) 45%, transparent 70%);
-    filter: blur(8px);
-    animation: breathe 5s ease-in-out infinite;
-  }
-  @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
-
-  .stick {
     position: relative;
-    width: clamp(120px, 30vw, 165px);
-    aspect-ratio: 250 / 470;
-    border-radius: 20px / 46px;
-    background:
-      radial-gradient(120% 90% at 18% 8%, rgba(158,210,255,.55), transparent 42%),
-      radial-gradient(140% 110% at 85% 78%, rgba(142,123,255,.5), transparent 46%),
-      radial-gradient(100% 80% at 70% 25%, rgba(47,123,255,.55), transparent 50%),
-      linear-gradient(170deg, #10131f, #05060b 75%);
-    box-shadow:
-      inset 6px 0 16px rgba(158,210,255,.12),
-      inset -8px 0 20px rgba(0,0,0,.8),
-      0 26px 54px rgba(0,0,0,.65),
-      0 0 46px rgba(47,123,255,.3);
-    animation: float 6s ease-in-out infinite;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: .3rem; text-align: center; padding: 1.4rem .8rem;
+    display: grid; place-items: center;
+    min-height: clamp(300px, 40vw, 480px);
   }
-  @keyframes float { 0%,100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-12px) rotate(1.5deg); } }
-  .stick::before {
-    content: ""; position: absolute; top: 17%; left: 5%; right: 5%; height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(158,210,255,.5), transparent);
-  }
-  .stick .brand { font-weight: 800; font-style: italic; font-size: clamp(1.4rem, 4vw, 1.7rem); letter-spacing: .05em; color: #fff; }
-  .stick .line { font-size: .4rem; letter-spacing: .3em; text-transform: uppercase; color: #cdd8f0; }
-  .stick .flavor {
-    font-weight: 800; text-transform: uppercase; font-size: clamp(.8rem, 2.4vw, .95rem); line-height: 1.05; margin-top: .5rem;
-    background: linear-gradient(90deg, var(--frost), var(--electric));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  .stick .notes { font-size: .48rem; letter-spacing: .16em; color: #9fb2da; text-transform: uppercase; }
-  .stick .claims { font-size: .4rem; letter-spacing: .12em; color: #7c8db4; text-transform: uppercase; margin-top: .9rem; line-height: 1.9; }
+  @media (max-width: 819px) { .stage { order: -1; } }
 
-  .chip {
-    position: absolute;
-    font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
-    font-size: clamp(.52rem, 1.6vw, .6rem);
-    padding: .42rem .8rem; border-radius: 999px;
-    border: 1px solid rgba(158,210,255,.35);
-    background: rgba(10,14,26,.72); color: var(--frost);
-    animation: drift 7s ease-in-out infinite;
-    white-space: nowrap;
+  .product-wrap {
+    position: relative;
+    width: min(100%, 420px);
+    display: grid;
+    place-items: center;
   }
-  .chip.c1 { top: 8%; left: 2%; animation-delay: .4s; }
-  .chip.c2 { top: 48%; right: 0; color: var(--lavender); border-color: rgba(142,123,255,.4); animation-delay: 1.3s; }
-  .chip.c3 { bottom: 6%; left: 8%; color: var(--amber); border-color: rgba(255,179,92,.4); animation-delay: 2.1s; }
-  @keyframes drift { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-  /* respect users who prefer less motion */
+  .product-tilt {
+    perspective: 1100px;
+    width: clamp(160px, 62%, 250px);
+    max-width: 58vw;
+    /* the "cute" bit: the pack settles in with a rise, a breath of scale,
+       and a 2° straighten — staggered behind the text fade */
+    opacity: 0;
+    transform: translateY(22px) scale(.965) rotate(2deg);
+    transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.25,1);
+  }
+  .slide.is-active .product-tilt {
+    opacity: 1;
+    transform: none;
+    transition-delay: .22s;
+  }
+
+  .product {
+    position: relative;
+    filter: drop-shadow(0 22px 26px rgba(0,0,0,.45));
+  }
+  .product::after { /* contact shadow pinned to the pack's own base */
+    content: "";
+    position: absolute; bottom: -2.5%; left: 6%; right: 6%; height: 4%;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,.55), transparent 65%);
+    filter: blur(7px);
+  }
+
+  .product .shot {
+    width: 100%; display: block;
+    filter: saturate(1.08) contrast(1.04);
+  }
+
+  /* ambient bounce: a blurred copy of each pack glows behind itself */
+  .product .glowcopy {
+    position: absolute; inset: 0; z-index: -1;
+    width: 100%;
+    transform: translate(3%, 2%) scale(1.05);
+    filter: blur(26px) saturate(1.7) brightness(.85);
+    opacity: .5;
+  }
+
+  /* palette grade + rim light, masked to each pack's silhouette */
+  .product .grade, .product .rim {
+    position: absolute; inset: 0; pointer-events: none;
+    -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  }
+  .product .grade { mix-blend-mode: soft-light; }
+  .product .rim { mix-blend-mode: screen; }
+
+  .s-lavender .grade {
+    background: linear-gradient(160deg, rgba(61,124,232,.40), rgba(107,90,158,.32) 55%, rgba(12,16,30,.30));
+    -webkit-mask-image: url("axe-blue-lavender.png"); mask-image: url("axe-blue-lavender.png");
+  }
+  .s-lavender .rim {
+    background: linear-gradient(90deg, rgba(10,12,20,.25), transparent 14%, transparent 70%, rgba(168,216,240,.26) 95%, rgba(168,216,240,.38));
+    -webkit-mask-image: url("axe-blue-lavender.png"); mask-image: url("axe-blue-lavender.png");
+  }
+  .s-aqua .grade {
+    background: linear-gradient(160deg, rgba(96,178,190,.38), rgba(70,130,110,.28) 55%, rgba(10,20,20,.30));
+    -webkit-mask-image: url("axe-aqua-bergamot.png"); mask-image: url("axe-aqua-bergamot.png");
+  }
+  .s-aqua .rim {
+    background: linear-gradient(90deg, rgba(8,14,14,.25), transparent 14%, transparent 70%, rgba(170,220,225,.26) 95%, rgba(170,220,225,.38));
+    -webkit-mask-image: url("axe-aqua-bergamot.png"); mask-image: url("axe-aqua-bergamot.png");
+  }
+  .s-geranium .grade {
+    background: linear-gradient(160deg, rgba(72,168,110,.34), rgba(120,130,125,.24) 55%, rgba(10,18,14,.30));
+    -webkit-mask-image: url("axe-green-geranium.png"); mask-image: url("axe-green-geranium.png");
+  }
+  .s-geranium .rim {
+    background: linear-gradient(90deg, rgba(8,14,10,.25), transparent 14%, transparent 70%, rgba(200,230,210,.24) 95%, rgba(200,230,210,.36));
+    -webkit-mask-image: url("axe-green-geranium.png"); mask-image: url("axe-green-geranium.png");
+  }
+
+  /* ---------- carousel controls ---------- */
+  .cnav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    z-index: 2;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(10,14,22,.45);
+    color: #e8eef7;
+    font-size: 1.05rem; line-height: 1;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .cnav:hover { background: rgba(20,28,44,.7); border-color: rgba(255,255,255,.4); }
+  .cnav.prev { left: clamp(.4rem, 1.5vw, 1rem); }
+  .cnav.next { right: clamp(.4rem, 1.5vw, 1rem); }
+
+  /* dots are scent swatches: each carries its product's accent color.
+     the active one stretches into a pill and fills over the 30s cycle */
+  .dots {
+    position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
+    z-index: 2;
+    display: flex; gap: .55rem; align-items: center;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 999px;
+    border: 0; padding: 0;
+    background: var(--c);
+    opacity: .45;
+    cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: width .35s ease, opacity .35s ease;
+  }
+  .dot.active { width: 36px; opacity: 1; }
+  .dot.active::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: rgba(255,255,255,.38);
+    transform-origin: left;
+    transform: scaleX(0);
+    animation: dotfill 30s linear forwards;
+  }
+  @keyframes dotfill { to { transform: scaleX(1); } }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
 
   /* ============================================================
-     Trust strip — horizontal scroll on small screens, no wrap-cram
+     Trust strip
      ============================================================ */
-  .trust {
+  .trust { border-bottom: 1px solid var(--line); }
+  .trust-inner {
     display: flex; gap: 2rem;
-    padding: 1rem var(--pad);
-    border-bottom: 1px solid var(--line);
+    padding-block: 1rem;
     font-size: .74rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
     color: var(--muted);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
-  .trust::-webkit-scrollbar { display: none; }
-  .trust span { white-space: nowrap; }
-  .trust span::before { content: "✓ "; color: var(--brand-blue); }
-  @media (min-width: 900px) { .trust { justify-content: center; gap: 2.5rem; } }
+  .trust-inner::-webkit-scrollbar { display: none; }
+  .trust-inner span { white-space: nowrap; }
+  .trust-inner span::before { content: "✓ "; color: var(--brand-blue); }
+  @media (min-width: 900px) { .trust-inner { justify-content: center; gap: 2.5rem; } }
 
   /* ============================================================
-     Product grid — 2-up on phones, auto-fill upward
+     Product grid
      ============================================================ */
   .section-head {
     display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem;
-    padding: clamp(1.4rem, 4vw, 2.4rem) var(--pad) 1.2rem;
+    padding-block: clamp(1.4rem, 4vw, 2.4rem) 1.2rem;
   }
   .section-head h2 { font-size: clamp(1.1rem, 3vw, 1.35rem); font-weight: 700; }
   .section-head a { font-size: .85rem; color: var(--brand-blue); font-weight: 600; }
@@ -344,7 +526,7 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: clamp(.7rem, 2vw, 1.2rem);
-    padding: 0 var(--pad) clamp(1.8rem, 5vw, 3rem);
+    padding-block: 0 clamp(1.8rem, 5vw, 3rem);
   }
   @media (min-width: 640px)  { .grid { grid-template-columns: repeat(3, 1fr); } }
   @media (min-width: 1000px) { .grid { grid-template-columns: repeat(4, 1fr); } }
@@ -362,7 +544,7 @@
     font-size: 2rem;
   }
   .t1 { background: linear-gradient(150deg, #e8f1ff, #dbe9ff); }
-  .t2 { background: linear-gradient(150deg, #fff2e4, #ffe7cd); }
+  .t2 { background: linear-gradient(150deg, #e2f3f5, #cfe9ec); }
   .t3 { background: linear-gradient(150deg, #eae6ff, #ddd6ff); }
   .t4 { background: linear-gradient(150deg, #e4f9ef, #d2f3e2); }
   .card h3 { font-size: clamp(.78rem, 2vw, .88rem); font-weight: 600; line-height: 1.45; }
@@ -380,13 +562,12 @@
   .card .mini:hover { background: var(--brand-blue); color: #fff; }
 
   /* ============================================================
-     Footer — stacks cleanly on mobile
+     Footer
      ============================================================ */
-  footer {
-    border-top: 1px solid var(--line);
-    padding: clamp(1.6rem, 4vw, 2.2rem) var(--pad);
+  footer { border-top: 1px solid var(--line); font-size: .8rem; color: var(--muted); }
+  .footer-inner {
+    padding-block: clamp(1.6rem, 4vw, 2.2rem);
     display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between;
-    font-size: .8rem; color: var(--muted);
   }
   footer .cols { display: flex; gap: clamp(1.6rem, 6vw, 4rem); flex-wrap: wrap; }
   footer h4 { font-size: .8rem; color: var(--ink); margin-bottom: .6rem; }
@@ -397,10 +578,20 @@
 </head>
 <body>
 
+  <!-- displacement field for the headline warp (0×0, invisible) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="warp" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap id="warp-disp" in="SourceGraphic" in2="n" scale="0"
+                         xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
   <div class="topline"></div>
 
   <!-- ===== Header ===== -->
   <header>
+    <div class="container header-inner">
     <a class="logo" href="#">FIRST <b>CHOICE</b><span>BUYING</span></a>
 
     <a href="#" class="cart" aria-label="Cart, 1 item">🛒</a>
@@ -420,87 +611,202 @@
       <input type="text" placeholder="What can we help you find?" />
       <div class="cat">All categories ▾</div>
     </div>
+    </div>
   </header>
 
-  <!-- ===== THE BANNER ===== -->
-  <section class="promo">
-    <div>
-      <span class="tag">DEAL OF THE WEEK</span>
-      <h1>Smell Like<br><span class="grad">You Mean It.</span></h1>
-      <p class="copy">
-        AXE Fine Fragrance Collection <strong>Blue Lavender</strong> — cool lavender crashes into
-        <strong>frosted mint</strong> and lands on a warm <em>amber</em> finish.
-        48H fresh. Aluminum free. Infused with essential oils.
-      </p>
-      <div class="price-row">
-        <span class="now">$4.99</span>
-        <span class="was">$7.94</span>
-        <span class="save">SAVE 37%</span>
-      </div>
-      <div class="ctas">
-        <a class="btn btn-cart" href="#">Add To Cart →</a>
-        <a class="btn btn-scent" href="#">Explore the Scent</a>
-      </div>
-      <p class="fineprint">⚡ <b>Selling fast</b> · Free shipping over $49 · Same day dispatch</p>
+  <!-- ===== PROMO CAROUSEL ===== -->
+  <div class="container">
+  <section class="promo" id="promo" data-slide="0" aria-roledescription="carousel" aria-label="AXE Fine Fragrance Collection deals">
+
+    <!-- crossfading per-product backgrounds -->
+    <div class="bg bg--lavender" aria-hidden="true"></div>
+    <div class="bg bg--aqua" aria-hidden="true"></div>
+    <div class="bg bg--geranium" aria-hidden="true"></div>
+
+    <div class="slides">
+
+      <!-- Slide 1: Blue Lavender -->
+      <article class="slide s-lavender is-active" aria-label="1 of 3: Blue Lavender">
+        <div>
+          <span class="eyebrow">Deal of the week</span>
+          <h2>Blue<br>Lavender</h2>
+          <p class="sub">
+            The <strong>AXE Fine Fragrance Collection</strong> deodorant stick —
+            fine-fragrance-grade scent with 48-hour freshness, no aluminum,
+            infused with essential oils.
+          </p>
+          <dl class="notes-row">
+            <div><dt>Top</dt><dd>Frosted mint</dd></div>
+            <div><dt>Heart</dt><dd>Blue lavender</dd></div>
+            <div><dt>Base</dt><dd>Warm amber</dd></div>
+          </dl>
+          <div class="price-row">
+            <span class="now">$4.99</span>
+            <span class="was">was $7.94</span>
+            <span class="save">SAVE 37%</span>
+          </div>
+          <div class="ctas">
+            <a class="btn-cart" href="#">Add to cart</a>
+            <a class="link-details" href="#">See details</a>
+          </div>
+          <p class="fineprint">Offer ends Sunday. Free shipping over $49 · same-day dispatch.</p>
+        </div>
+        <div class="stage">
+          <div class="product-wrap">
+            <div class="product-tilt">
+              <div class="product">
+                <img class="glowcopy" src="axe-blue-lavender.png" alt="" aria-hidden="true" loading="lazy" />
+                <img class="shot" src="axe-blue-lavender.png"
+                     alt="AXE Fine Fragrance Collection Blue Lavender deodorant stick, Mint + Amber, 2.6 oz" />
+                <span class="grade"></span>
+                <span class="rim"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Slide 2: Aqua Bergamot -->
+      <article class="slide s-aqua" aria-label="2 of 3: Aqua Bergamot" aria-hidden="true">
+        <div>
+          <span class="eyebrow">Lowest price · biggest saving</span>
+          <h2>Aqua<br>Bergamot</h2>
+          <p class="sub">
+            Crisp citrus over herbal green — the sharpest scent in the
+            <strong>Fine Fragrance Collection</strong>. 48-hour freshness,
+            no aluminum, infused with essential oils.
+          </p>
+          <dl class="notes-row">
+            <div><dt>Top</dt><dd>Aqua bergamot</dd></div>
+            <div><dt>Heart</dt><dd>Fresh sage</dd></div>
+            <div><dt>Base</dt><dd>Juniper</dd></div>
+          </dl>
+          <div class="price-row">
+            <span class="now">$4.50</span>
+            <span class="was">was $7.94</span>
+            <span class="save">SAVE 43%</span>
+          </div>
+          <div class="ctas">
+            <a class="btn-cart" href="#">Add to cart</a>
+            <a class="link-details" href="#">See details</a>
+          </div>
+          <p class="fineprint">Offer ends Sunday. Free shipping over $49 · same-day dispatch.</p>
+        </div>
+        <div class="stage">
+          <div class="product-wrap">
+            <div class="product-tilt">
+              <div class="product">
+                <img class="glowcopy" src="axe-aqua-bergamot.png" alt="" aria-hidden="true" loading="lazy" />
+                <img class="shot" src="axe-aqua-bergamot.png"
+                     alt="AXE Fine Fragrance Collection Aqua Bergamot deodorant stick, Sage + Juniper, 2.6 oz" loading="lazy" />
+                <span class="grade"></span>
+                <span class="rim"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Slide 3: Green Geranium -->
+      <article class="slide s-geranium" aria-label="3 of 3: Green Geranium" aria-hidden="true">
+        <div>
+          <span class="eyebrow">Back in stock</span>
+          <h2>Green<br>Geranium</h2>
+          <p class="sub">
+            Floral green grounded in woods — the boldest of the
+            <strong>Fine Fragrance Collection</strong>. 48-hour freshness,
+            no aluminum, infused with essential oils.
+          </p>
+          <dl class="notes-row">
+            <div><dt>Top</dt><dd>Green geranium</dd></div>
+            <div><dt>Heart</dt><dd>Cedarwood</dd></div>
+            <div><dt>Base</dt><dd>Patchouli</dd></div>
+          </dl>
+          <div class="price-row">
+            <span class="now">$4.99</span>
+            <span class="was">was $7.94</span>
+            <span class="save">SAVE 37%</span>
+          </div>
+          <div class="ctas">
+            <a class="btn-cart" href="#">Add to cart</a>
+            <a class="link-details" href="#">See details</a>
+          </div>
+          <p class="fineprint">Offer ends Sunday. Free shipping over $49 · same-day dispatch.</p>
+        </div>
+        <div class="stage">
+          <div class="product-wrap">
+            <div class="product-tilt">
+              <div class="product">
+                <img class="glowcopy" src="axe-green-geranium.png" alt="" aria-hidden="true" loading="lazy" />
+                <img class="shot" src="axe-green-geranium.png"
+                     alt="AXE Fine Fragrance Collection Green Geranium deodorant stick, Cedar + Patchouli, 2.6 oz" loading="lazy" />
+                <span class="grade"></span>
+                <span class="rim"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
     </div>
 
-    <div class="stage">
-      <div class="halo"></div>
-      <div class="stick" role="img" aria-label="AXE Blue Lavender deodorant stick">
-        <div class="brand">AXE</div>
-        <div class="line">Fine Fragrance Collection</div>
-        <div class="flavor">Blue<br>Lavender</div>
-        <div class="notes">Mint + Amber</div>
-        <div class="claims">48H Fresh · Aluminum Free<br>Essential Oils</div>
-      </div>
-      <span class="chip c1">❄ Frosted Mint</span>
-      <span class="chip c2">✿ Blue Lavender</span>
-      <span class="chip c3">◆ Warm Amber</span>
+    <!-- controls -->
+    <button class="cnav prev" aria-label="Previous product">‹</button>
+    <button class="cnav next" aria-label="Next product">›</button>
+
+    <div class="dots" role="tablist" aria-label="Choose product">
+      <button class="dot active" style="--c:#3d7ce8" role="tab" aria-label="Blue Lavender"></button>
+      <button class="dot" style="--c:#8fd0dd" role="tab" aria-label="Aqua Bergamot"></button>
+      <button class="dot" style="--c:#45c06a" role="tab" aria-label="Green Geranium"></button>
     </div>
   </section>
+  </div>
 
   <!-- ===== Trust strip ===== -->
   <div class="trust">
-    <span>100% Authentic Guarantee</span>
-    <span>Free Shipping Over $49</span>
-    <span>Same Day Dispatch</span>
-    <span>Secure Checkout</span>
+    <div class="container trust-inner">
+      <span>100% Authentic Guarantee</span>
+      <span>Free Shipping Over $49</span>
+      <span>Same Day Dispatch</span>
+      <span>Secure Checkout</span>
+    </div>
   </div>
 
   <!-- ===== Product grid (filler) ===== -->
-  <div class="section-head">
+  <div class="section-head container">
     <h2>You May Also Like</h2>
     <a href="#">View all →</a>
   </div>
-  <div class="grid">
+  <div class="grid container">
     <div class="card">
       <div class="thumb t1">🧴</div>
       <h3>AXE Fine Fragrance Body Wash, Blue Lavender, 16 oz</h3>
       <div class="price">$6.49 <s>$8.99</s></div>
-      <button class="mini">Add to Cart</button>
+      <button class="mini">Add to cart</button>
     </div>
     <div class="card">
-      <div class="thumb t2">✨</div>
-      <h3>AXE Gold Vanilla Deodorant Stick, Oud Wood, 2.6 oz</h3>
-      <div class="price">$4.99 <s>$7.94</s></div>
-      <button class="mini">Add to Cart</button>
+      <div class="thumb t2">🍋</div>
+      <h3>AXE Aqua Bergamot Body Wash, Sage + Juniper, 16 oz</h3>
+      <div class="price">$6.49 <s>$8.99</s></div>
+      <button class="mini">Add to cart</button>
     </div>
     <div class="card">
       <div class="thumb t3">💜</div>
       <h3>Blue Lavender Deodorant 6-Pack — Wholesale Bundle</h3>
       <div class="price">$26.99 <s>$47.64</s></div>
-      <button class="mini">Add to Cart</button>
+      <button class="mini">Add to cart</button>
     </div>
     <div class="card">
       <div class="thumb t4">🌿</div>
-      <h3>AXE Emerald Sage Deodorant Stick, Sage + Cedar, 2.6 oz</h3>
-      <div class="price">$4.99 <s>$7.94</s></div>
-      <button class="mini">Add to Cart</button>
+      <h3>Green Geranium Deodorant 6-Pack — Wholesale Bundle</h3>
+      <div class="price">$26.99 <s>$47.64</s></div>
+      <button class="mini">Add to cart</button>
     </div>
   </div>
 
   <!-- ===== Footer ===== -->
   <footer>
+    <div class="container footer-inner">
     <div class="cols">
       <div>
         <h4>Shop</h4>
@@ -516,7 +822,106 @@
       </div>
     </div>
     <div class="legal">© 2026 First Choice Buying. Demo page for illustrative purposes.<br>AXE® is a registered trademark of its owner.</div>
+    </div>
   </footer>
+
+<script>
+(function () {
+  var promo  = document.getElementById('promo');
+  var slides = Array.prototype.slice.call(promo.querySelectorAll('.slide'));
+  var dots   = Array.prototype.slice.call(promo.querySelectorAll('.dot'));
+  var INTERVAL = 30000; // 30-second auto-advance
+  var index = 0, timer = null;
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- split each headline into letters so they can cascade.
+     The h2 keeps an aria-label; the letters are decoration. ---- */
+  slides.forEach(function (s) {
+    var h = s.querySelector('h2');
+    h.setAttribute('aria-label', h.textContent.trim().replace(/\s+/g, ' '));
+    var i = 0;
+    Array.prototype.slice.call(h.childNodes).forEach(function (node) {
+      if (node.nodeType !== 3) return; // keep <br> as-is
+      var frag = document.createDocumentFragment();
+      node.textContent.split('').forEach(function (c) {
+        if (c.trim() === '') { frag.appendChild(document.createTextNode(c)); return; }
+        var sp = document.createElement('span');
+        sp.className = 'ch';
+        sp.style.setProperty('--i', i++);
+        sp.setAttribute('aria-hidden', 'true');
+        sp.textContent = c;
+        frag.appendChild(sp);
+      });
+      h.replaceChild(frag, node);
+    });
+  });
+
+  /* ---- liquid displacement: ripple the incoming headline and
+     ease the field's strength down to zero as the letters land ---- */
+  var disp = document.getElementById('warp-disp');
+  var warpRaf = null;
+  function warpIn(h2) {
+    if (prefersReduced || !disp || !h2) return;
+    if (warpRaf) cancelAnimationFrame(warpRaf);
+    h2.classList.add('warping');
+    var t0 = performance.now(), DURATION = 750, STRENGTH = 80;
+    function tick(t) {
+      var p = Math.min(1, (t - t0) / DURATION);
+      var e = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      disp.setAttribute('scale', (STRENGTH * (1 - e)).toFixed(1));
+      if (p < 1) { warpRaf = requestAnimationFrame(tick); }
+      else { h2.classList.remove('warping'); disp.setAttribute('scale', '0'); }
+    }
+    warpRaf = requestAnimationFrame(tick);
+  }
+
+  function show(n) {
+    index = (n + slides.length) % slides.length;
+    slides.forEach(function (s, k) {
+      s.classList.toggle('is-active', k === index);
+      s.setAttribute('aria-hidden', k === index ? 'false' : 'true');
+      s.querySelector('h2').classList.remove('warping');
+    });
+    dots.forEach(function (d) {
+      d.classList.remove('active');
+      d.setAttribute('aria-selected', 'false');
+    });
+    // re-adding after a reflow restarts the 30s progress fill
+    void dots[index].offsetWidth;
+    dots[index].classList.add('active');
+    dots[index].setAttribute('aria-selected', 'true');
+    promo.setAttribute('data-slide', index);
+    warpIn(slides[index].querySelector('h2'));
+  }
+
+  function start() { stop(); timer = setInterval(function () { show(index + 1); }, INTERVAL); }
+  function stop()  { if (timer) { clearInterval(timer); timer = null; } }
+  function goTo(n) { show(n); start(); } // manual navigation resets the clock
+
+  promo.querySelector('.prev').addEventListener('click', function () { goTo(index - 1); });
+  promo.querySelector('.next').addEventListener('click', function () { goTo(index + 1); });
+  dots.forEach(function (d, k) { d.addEventListener('click', function () { goTo(k); }); });
+
+  // pause while the shopper is reading or interacting
+  promo.addEventListener('mouseenter', stop);
+  promo.addEventListener('mouseleave', start);
+  promo.addEventListener('focusin', stop);
+  promo.addEventListener('focusout', start);
+
+  // don't advance in a hidden tab
+  document.addEventListener('visibilitychange', function () {
+    document.hidden ? stop() : start();
+  });
+
+  /* the HTML ships with slide 1 active so no-JS visitors see content.
+     With JS, deactivate it for one frame so the opening warp plays too. */
+  slides[0].classList.remove('is-active');
+  requestAnimationFrame(function () {
+    show(0);
+    start();
+  });
+})();
+</script>
 
 </body>
 </html>
